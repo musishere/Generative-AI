@@ -44,11 +44,25 @@ async function main() {
     tool_choice: "auto",
   });
 
-  // Structured output
-  console.log(JSON.stringify(completion.choices[0].message, null, 2));
+  const toolCalls = completion.choices[0].message.tool_calls;
+
+  if (!toolCalls) {
+    console.log(`Assistant: ${completion.choices[0].message.content}`);
+  }
+
+  for (const tool of toolCalls) {
+    console.log(tool);
+    const functionName = tool.function.name;
+    const functionParams = tool.function.arguments;
+
+    if (functionName === "webSearch") {
+      const tool_result = await webSearch(JSON.parse(functionParams));
+    }
+  }
 }
 
 async function webSearch({ query }) {
+  console.log("Calling websearch tool");
   return "Iphone was launched on 20 sep 2024";
 }
 
