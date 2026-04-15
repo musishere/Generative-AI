@@ -9,13 +9,17 @@ async function main(){
         model:"llama-3.3-70b-versatile",
         messages:[
             {
+                role:'system',
+                content:'You are Mufi,a smart personal assistant'
+            },
+            {
                 role:'user',
-                content:'Hi'
+                content:'Who are you?'
             }
         ]
     })
 
-    console.log({"Response from api":completion})
+    console.log({"Response":completion.choices[0].message.content})
 }
 
-main()
+main();
