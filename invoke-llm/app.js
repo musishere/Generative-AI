@@ -14,8 +14,9 @@ async function main() {
     messages: [
       {
         role: "system",
-        content:
-          "You are Jarvis, a smart review grader. Your task is to analyse given review and return the senitment. Classify the review as positive, neutral or negative. Output must be in single word",
+        content: `You are Jarvis, a smart review grader. Your task is to analyse given review and return the senitment. Classify the review as positive, neutral or negative. You must return value in valid JSON structure.
+          example: {sentiment:"Negative"}.
+          `,
       },
       {
         role: "user",
@@ -25,7 +26,8 @@ async function main() {
     ],
   });
 
-  console.log({ Response: completion.choices[0].message.content });
+  // Structured output
+  console.log(JSON.parse(completion.choices[0].message.content));
 }
 
 main();
