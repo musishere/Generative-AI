@@ -1,8 +1,10 @@
 import Groq from "groq-sdk";
 import { configDotenv } from "dotenv";
+import { tavily } from "@tavily/core";
 configDotenv();
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const tvily = tavily({ apiKey: process.env.TAVILY_API_KEY });
 
 async function main() {
   const completion = await groq.chat.completions.create({
@@ -62,8 +64,8 @@ async function main() {
 }
 
 async function webSearch({ query }) {
-  console.log("Calling websearch tool");
-  return "Iphone was launched on 20 sep 2024";
+  const response = await tvily.search(query);
+  console.log({ response: response.results });
 }
 
 main();
