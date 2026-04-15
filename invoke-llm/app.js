@@ -10,11 +10,13 @@ async function main(){
         messages:[
             {
                 role:'system',
-                content:'You are Mufi,a smart personal assistant'
+                content:'You are Jarvis, a smart review grader. Your task is to analyse given review and return the senitment. Classify the review as positive, neutral or negative. Output must be in single word'
             },
             {
                 role:'user',
-                content:'Who are you?'
+                content:`Review: These headphones arrived quickly and looks great, but the left earcup stopped working after a week.
+                sentiment:`
+
             }
         ]
     })
