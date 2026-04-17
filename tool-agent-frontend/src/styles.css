@@ -32,7 +32,8 @@ body,
 
 body {
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .page-glow {
@@ -61,7 +62,8 @@ body {
 .app-shell {
   position: relative;
   z-index: 1;
-  height: 100vh;
+  min-height: 100vh;
+  height: auto;
   display: grid;
   grid-template-columns: 300px 1fr;
   gap: 16px;
@@ -233,7 +235,7 @@ body {
 }
 
 .chat-scroll {
-  overflow-y: auto;
+  overflow: visible;
   padding: 4px 24px 20px;
 }
 
@@ -330,9 +332,6 @@ body {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   word-break: break-word;
-  max-height: min(60vh, 520px);
-  overflow-y: auto;
-  overscroll-behavior: contain;
 }
 
 .message.assistant .bubble {
