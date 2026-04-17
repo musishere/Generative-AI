@@ -278,6 +278,12 @@ body {
   border-color: rgba(0, 0, 0, 0.2);
 }
 
+.chip:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .messages {
   display: flex;
   flex-direction: column;
@@ -322,6 +328,11 @@ body {
   line-height: 1.5;
   font-size: 0.95rem;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  max-height: min(60vh, 520px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .message.assistant .bubble {
@@ -386,6 +397,11 @@ body {
   line-height: 1.45;
 }
 
+.composer textarea:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
 .send-btn {
   width: 40px;
   height: 40px;
@@ -402,6 +418,12 @@ body {
 
 .send-btn:active {
   transform: translateY(1px);
+}
+
+.send-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .send-btn svg {

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const starterChips = [
   { label: "Summarize AI headlines", prompt: "Summarize the latest AI headlines." },
@@ -7,12 +7,7 @@ const starterChips = [
   { label: "Write a launch announcement", prompt: "Draft a clean launch announcement post." },
 ];
 
-const cannedReplies = [
-  "That is a strong question. I would start with a short summary, then verify with a reliable source.",
-  "Here is a practical approach:\n1. Define the goal clearly.\n2. Break it into steps.\n3. Execute and iterate.",
-  "I can help with that. If you share a little more context, I can make the answer much more precise.",
-  "For now this is a static frontend, so this response is simulated. Backend integration can be wired next.",
-];
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
 function TypingDots() {
   return (
@@ -36,6 +31,7 @@ function Message({ message }) {
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState([
     {
       id: crypto.randomUUID(),
@@ -47,11 +43,6 @@ export default function App() {
 
   const scrollRef = useRef(null);
   const textareaRef = useRef(null);
-
-  const currentReply = useMemo(() => {
-    const index = Math.floor(Math.random() * cannedReplies.length);
-    return cannedReplies[index];
-  }, [messages.length]);
 
   useEffect(() => {
     const scrollElement = scrollRef.current;
@@ -84,9 +75,9 @@ export default function App() {
     return () => window.removeEventListener("click", handleOutsideClick);
   }, []);
 
-  const submitPrompt = (promptText) => {
+  const submitPrompt = async (promptText) => {
     const text = promptText.trim();
-    if (!text) return;
+    if (!text || isLoading) return;
 
     const userMessage = {
       id: crypto.randomUUID(),
@@ -109,20 +100,55 @@ export default function App() {
     ]);
 
     setInput("");
+    setIsLoading(true);
 
-    window.setTimeout(() => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: text }),
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data?.success) {
+        throw new Error(data?.error || "Could not get a response from server.");
+      }
+
+      const assistantText =
+        typeof data.result === "string" && data.result.trim().length > 0
+          ? data.result
+          : "No response text returned.";
+
       setMessages((prev) =>
         prev.map((message) =>
           message.id === typingMessageId
             ? {
                 ...message,
                 typing: false,
-                text: currentReply,
+                text: assistantText,
               }
             : message
         )
       );
-    }, 650);
+    } catch (error) {
+      const errorText = error instanceof Error ? error.message : "Something went wrong while calling the backend.";
+
+      setMessages((prev) =>
+        prev.map((message) =>
+          message.id === typingMessageId
+            ? {
+                ...message,
+                typing: false,
+                text: `Error: ${errorText}`,
+              }
+            : message
+        )
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSubmit = (event) => {
@@ -210,7 +236,13 @@ export default function App() {
 
             <div className="chip-row" id="chipRow">
               {starterChips.map((chip) => (
-                <button key={chip.label} className="chip" type="button" onClick={() => submitPrompt(chip.prompt)}>
+                <button
+                  key={chip.label}
+                  className="chip"
+                  type="button"
+                  onClick={() => submitPrompt(chip.prompt)}
+                  disabled={isLoading}
+                >
                   {chip.label}
                 </button>
               ))}
@@ -232,6 +264,7 @@ export default function App() {
                 maxLength={1000}
                 ref={textareaRef}
                 value={input}
+                disabled={isLoading}
                 onChange={(event) => setInput(event.target.value)}
                 onKeyDown={(event) => {
                   if (event.key === "Enter" && !event.shiftKey) {
@@ -240,7 +273,13 @@ export default function App() {
                   }
                 }}
               ></textarea>
-              <button id="sendBtn" className="send-btn" type="submit" aria-label="Send message">
+              <button
+                id="sendBtn"
+                className="send-btn"
+                type="submit"
+                aria-label="Send message"
+                disabled={isLoading}
+              >
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M3.4 20.2l17.6-8.2c.9-.4.9-1.6 0-2L3.4 1.8c-.8-.4-1.7.3-1.6 1.2l.7 5.8c.1.5.5.9 1 .9h7.7c.5 0 .9.4.9.9s-.4.9-.9.9H3.5c-.5 0-.9.4-1 .9l-.7 5.8c-.1.9.8 1.6 1.6 1.2z" />
                 </svg>
